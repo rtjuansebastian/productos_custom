@@ -29,6 +29,11 @@ class Index extends CI_Controller
      */     
     public function index()
     {
+        $this->load->view('prueba');
+    }
+    
+    public function exportar_excel()
+    {
         $productos=array();
         $archivo_excel=array();
         if (null !==$this->input->post("convert")) 
@@ -52,8 +57,8 @@ class Index extends CI_Controller
                     $newcsvfile  = str_replace(".xlsx",".csv",$file);
                     //$newcsvfile="C:/Users/Juan/Documents/".$newcsvfile;
                     $newcsvfile="/tmp/".$newcsvfile;
-                    $objPHPExcel = new PHPExcel();
-                    $objPHPExcel->convertXLStoCSV($file,$newcsvfile);
+                    $objPHPExcel1 = new PHPExcel();
+                    $objPHPExcel1->convertXLStoCSV($file,$newcsvfile);
                     $archivo_excel=$this->cargar_model->cargar_csv($newcsvfile);
                 }
             }
@@ -90,7 +95,72 @@ class Index extends CI_Controller
             }
             $productos[$registro['PROCOD,C,40']]['descripciones']=$descripciones;
         }
-        $datos['productos']=$productos;
-        $this->load->view('prueba',$datos);
+
+        $objPHPExcel = new PHPExcel();
+        $objPHPExcel->getProperties()->setTitle("productos")->setDescription("Archivo para crear productos en Customsgm");
+        $objPHPExcel->setActiveSheetIndex(0);        
+        $styleArray = array(
+            'font'  => array(
+                'bold'  => true,
+                'size'  => 14,
+                'name'  => 'Calibri',
+            )
+        );               
+        $objPHPExcel->getActiveSheet()->getStyle('A1:DB1')->applyFromArray($styleArray); 
+        $objPHPExcel->getActiveSheet()->setCellValue('A1', 'codigo');
+        $objPHPExcel->getActiveSheet()->setCellValue('B1', 'importador');
+        $objPHPExcel->getActiveSheet()->setCellValue('C1', 'subpartida');
+        $objPHPExcel->getActiveSheet()->setCellValue('D1', 'Clasificacion');
+        $objPHPExcel->getActiveSheet()->setCellValue('E1', 'TEXTO ALERTA');
+        $objPHPExcel->getActiveSheet()->setCellValue('F1', 'NOMBRE');
+        $objPHPExcel->getActiveSheet()->setCellValue('G1', 'MARCA');
+        $objPHPExcel->getActiveSheet()->setCellValue('H1', 'TIPO');
+        $objPHPExcel->getActiveSheet()->setCellValue('I1', 'CLASE');
+        $objPHPExcel->getActiveSheet()->setCellValue('J1', 'MODELO');
+        $objPHPExcel->getActiveSheet()->setCellValue('K1', 'REFERENCIA');
+        $objPHPExcel->getActiveSheet()->setCellValue('L1', 'OTRAS CARACT.');
+        $objPHPExcel->getActiveSheet()->setCellValue('M1', 'DESCRIPCIONINICIAL');
+        $objPHPExcel->getActiveSheet()->setCellValue('N1', 'DESCRIPCION FINAL');
+        $i=2;
+        foreach ($productos as $producto)
+        {
+            $letra=79;
+            $letra2=65;
+            $contador=1;
+            if(isset($producto['codigo'])){$objPHPExcel->getActiveSheet()->setCellValue('A'.$i.'', $producto['codigo']);}
+            if(isset($producto['subpartida'])){$objPHPExcel->getActiveSheet()->setCellValue('C'.$i.'', $producto['subpartida']);}
+            if(isset($producto['descripciones']['REF'])){$objPHPExcel->getActiveSheet()->setCellValue('K'.$i.'', $producto['descripciones']['REF']);}
+            if(isset($producto['descripciones']['NOMBRE COMERCIAL'])){$objPHPExcel->getActiveSheet()->setCellValue('F'.$i.'', $producto['descripciones']['NOMBRE COMERCIAL']);}
+            foreach ($producto['descripciones'] as $descriptor => $valor)
+            {
+                if($contador>12)
+                {
+                    $objPHPExcel->getActiveSheet()->setCellValue("A".chr($letra2)."1", "ID");
+                    $objPHPExcel->getActiveSheet()->setCellValue("A".chr($letra2).$i, $descriptor);
+                    $letra2++;
+                    $objPHPExcel->getActiveSheet()->setCellValue("A".chr($letra2).$i, $valor);
+                    $letra2++;    
+                    if($letra2>90)
+                    {
+                        $letra2=65;
+                    }  
+                }
+                else 
+                {
+                    $objPHPExcel->getActiveSheet()->setCellValue(chr($letra)."1", "ID");
+                    $objPHPExcel->getActiveSheet()->setCellValue(chr($letra).$i, $descriptor);
+                    $letra++;
+                    $objPHPExcel->getActiveSheet()->setCellValue(chr($letra).$i, $valor);
+                    $letra++;
+                }                
+                $contador=$contador+2;                 
+            }
+            $i++;
+        }
+        
+        $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+        $uniqid = uniqid();
+        $objWriter->save('./assets/' . $uniqid . '.xlsx');
+        redirect(base_url('/assets/' . $uniqid . '.xlsx'));                
     }
 }

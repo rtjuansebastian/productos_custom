@@ -1,6 +1,6 @@
 <?php $this->load->view("header");  ?>      
         <div class="container">
-            <form class="form-inline" action="<?=  base_url()?>" method="post" enctype="multipart/form-data">
+            <form class="form-inline" action="<?=  base_url()?>index/exportar_excel" method="post" enctype="multipart/form-data">
                 <div class="form-group">
                     <span>Importar desde excel: </span>
                 </div>
