@@ -1,0 +1,63 @@
+html
+{
+    position: relative; 
+    min-height: 100%;
+}
+
+body
+{
+    margin: 0 0 65px;
+}
+
+footer
+{
+    width: 100%;
+    bottom: 0;
+    position: absolute;
+    height: 65px;
+}
+
+body > .container
+{
+    padding-top: 60px;
+}
+
+header
+{
+    padding: 5px 5px 5px 5px;
+}
+
+.editable span
+{display:block;
+}
+
+.editable:hover 
+{background:url(../img/edit.png) 90% 50% no-repeat;
+ cursor:pointer;}
+
+a.enlace
+{display:inline-block;
+ width:24px;
+ height:24px;
+ margin:0 0 0 5px;
+ overflow:hidden;
+ text-indent:-999em;
+ vertical-align:middle;}
+
+.guardar
+{background:url(../img/save.png) 0 0 no-repeat;}
+
+.cancelar
+{background:url(../img/cancel.png) 0 0 no-repeat;}
+
+.size_ref{
+  width: 10%;
+}
+
+.size_fec{
+  width: 60%;
+}
+
+.size_est{
+  width: 30%;
+}
